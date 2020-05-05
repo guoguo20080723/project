@@ -14,6 +14,3 @@ Text analysis is to model and structure the text information for data analysis. 
 3. [Tf-idf](https://guoguo20080723.github.io/project/Tfidf)
 4. [Bigram analysis](https://guoguo20080723.github.io/project/bigram)
 5. [Topic modeling](https://guoguo20080723.github.io/project/LDA)
-
-## Reference
-Silge, J., & Robinson, D. (2017). Text mining with R: A tidy approach. " O'Reilly Media, Inc.".

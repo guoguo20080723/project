@@ -13,10 +13,15 @@ library(tidyverse)
 library(lubridate)
 ```
 
-## Web scraping information from whitehouse.gov
-Web scraping is a method to extract data from websites. It is an easy way to transform the information on the web pages to a dataset. It is also inexpensive and accurate. You can get the latest information during the web scraping process. However, some websites do not allow screen scraping due to the protection policies. If I scrape too fast, some websites may identify and ban my behavior. The most common application is social media web scraping. There is no database for people's comments in social media, but through web scraping, it is easy to establish a database and analyze the data. For example, with the data, we can see people's attitude towards a policy using sentiment analysis. Another application is machine learning. Because machine learning models need a large amount of raw data to evolve. Web scraping is an efficient way to improve the reliability and accuracy of machine learning models.
+## Introduction to web scraping
+Web scraping is a method to extract data from websites. It is a program that can traverse multiple web pages as web crawlers. It is an easy way to transform the information on the web pages to a dataset. It is also inexpensive and accurate. You can get the latest information during the web scraping process. Besides, rather than viewing one web page at a time using the browser, web scraping allows me to view the database containing thousands of pages immediately.
 
-I intend to get the titles, topics, and published time of all the news on the whitehouse.gov website. Manually copying and pasting information from the web pages are feasible but time-consuming, so I use the package rvest to do the web scraping. There are four kinds of news, including remarks, articles, presidential actions, and briefings and statements. I have collected all the information from January 20, 2017 to April 25, 2020.
+However, some websites do not allow screen scraping due to the protection policies. If I scrape too fast, some websites may identify and ban my behavior. Sometimes web scraping is considered as an unauthorized use or reproduction of others' work since the process involves copying. It is hard to find the line between legal data collection of public contents and copyright violation. Besides, webscraping is slower than accessing data with an API.
+
+The most common application is social media web scraping. There is no database for people's comments in social media, but through web scraping, it is easy to establish a database and analyze the data. For example, with the data, we can see people's attitude towards a policy using sentiment analysis. Another application is machine learning. Because machine learning models need a large amount of raw data to evolve. Web scraping is an efficient way to improve the reliability and accuracy of machine learning models.
+
+## Web scraping information from whitehouse.gov
+I intend to get the titles, topics, and published time of all the news on the whitehouse.gov website. Manually copying and pasting information from the web pages are feasible but time-consuming, so I use the package rvest to do the web scraping. The program first requests data in the form of HTML from the white house website and then parses the data to extract useful information. I did web scraping for four times because there are four kinds of news, including remarks, articles, presidential actions, and briefings and statements. I have collected all the information from January 20, 2017 to April 25, 2020.
 
 ### Web scraping remarks
 
@@ -241,3 +246,8 @@ all$time<-dmy(all$time)
 #save the dataset
 write.csv(all, file="C:/Users/pc/Desktop/data science/project/all.csv")
 ```
+
+### References
+1. Mitchell, R. (2018). Web scraping with Python: Collecting more data from the modern web. " O'Reilly Media, Inc.".
+2. Glez-Peña, D., Lourenço, A., López-Fernández, H., Reboiro-Jato, M., & Fdez-Riverola, F. (2014). Web scraping technologies in an API world. Briefings in bioinformatics, 15(5), 788-797.
+3. Munzert, S., Rubba, C., Meißner, P., & Nyhuis, D. (2014). Automated data collection with R: A practical guide to web scraping and text mining. John Wiley & Sons.
