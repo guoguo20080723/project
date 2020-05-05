@@ -1,0 +1,121 @@
+---
+title: "Data science project - Tf-idf"
+author: "Yingtong Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
+library(tidyverse)
+library(tidytext)
+library(ggthemes)
+```
+
+## Term Frequency - Inverse Document Frequency (Tf-idf)
+
+Tf-idf is used to measure the importance of a word to a document in a collection. Tf-idf is composed of two terms: Term Frequency (TF) and Inverse Document Frequency (IDF). 
+$$Tf-idf (\boldsymbol{a})  = TF (\boldsymbol{a}) *  IDF(\boldsymbol{a})$$
+
+Term Frequency measures the frequency of term in a document.
+$$TF (\boldsymbol{a}) = \frac{Frequency\:of\:term\:\boldsymbol{a}\:in\:the\:document}{Total\:number\:of\:terms\:in\:the\:document}$$
+
+Inverse Document Frequency measures the importance of a term.
+$$IDF(\boldsymbol{a}) = ln\frac{Total\:number\:of\:documents}{ Number\:of\:documents\:including\:term\:\boldsymbol{a}}$$
+
+If I evaluate the most important words in each topic simply by counting the number of times each word appears, then probably I can see some unimportant words such as "remarks" and "president" get a high rank. Tf-idf can solve this problem by giving less weight to words that are often used in all the topics. Tf-idf can filter out some common but irrelavant words and only keep the important words.
+
+Tf-idf is efficient and easy to explain, but it does not consider the similarities between the words. Tf-idf is based on bag-of-words model (a text is the bag of its words, disregarding grammar or word order), so it does not capture the positions of the words or the co-occurrences in the document. In addition, Tf-idf severely depends on the corpus because it tends to conceal some keywords of the same topic. For example, if all of my documents are related to trade, the weight of keywords related to trade will be lower.
+
+```{r tf-idf}
+#import the dataset
+all <- read.csv("all.csv")
+#from factor to character
+all$title<-as.character(all$title)
+#visualize the top 6 most important words in each topic
+
+tfidf<-
+  all %>% 
+  group_by(id) %>%
+  #from sentences to words
+  unnest_tokens(word,title) %>%  
+  #drop stopwords
+  anti_join(stop_words) %>%   
+  ungroup() %>%
+  #drop digits
+  filter(!str_detect(word,"\\d")) %>%
+  #drop observations without topics
+  na.omit() %>%
+  group_by(topic) %>%
+  count(word,sort=T) %>%
+  #calculate Tf-idf
+  bind_tf_idf(word, topic, n)
+
+tfidf %>%
+  group_by(topic) %>% 
+  #choose the top 6 words with the highest Tf-idf in each topic
+  top_n(6, tf_idf) %>% 
+  ungroup() %>%
+  mutate(word = reorder(word, tf_idf)) %>% 
+  ggplot(aes(x=word, y=tf_idf,fill=topic)) +
+  geom_col(show.legend = F) +
+  xlab(NULL) +
+  coord_flip() +
+  facet_wrap(~topic,ncol=3,scales="free")+
+  theme_pander(base_size = 8, base_family = "sans")+
+  labs(title="The most important words in each topic of whitehouse news since Trump took office",
+       caption="Data Source: whitehouse.gov")
+```
+
+This graph clearly shows the most important words within each topic. In the topic "Budget & Spending", the most important words are "tax" and "cuts"; in the topic "Immigration", "border", "crisis", and "illegal" are of high importance; in the topic "Healthcare", "coronavirus" is much more important that other words; in the topic "Economy & Jobs", "agreement" and "trade" are the most important words; in the topic "Foreign Policy", "Japan", "Prime", and "Minister" indicate that the bilateral relationship between Japan and the U.S. is very important in this topic. 
+
+We can analyze a topic separately for more information, here I choose topics "Healthcare", "Foreign Policy" and "Immigration" as a example.
+
+```{r tfidf2}
+tfidf %>%
+  filter(topic=="Healthcare") %>% 
+  top_n(30) %>%
+  mutate(word = reorder(word, tf_idf)) %>% 
+  ggplot(aes(x=word, y=tf_idf)) +
+  geom_col()+
+  xlab(NULL) +
+  coord_flip()+
+  theme_pander(base_size = 11, base_family = "sans")+
+  labs(title="Coronavirus and opioid abuse are most important in healthcare",
+       caption="Data Source: whitehouse.gov")
+```
+
+We already know coronavirus is of high importance in this topic, but we can also observe that opioid abuse and obamacare are also the working focus of healthcare.
+
+```{r tfidf3}
+tfidf %>%
+  filter(topic=="Foreign Policy") %>% 
+  top_n(30) %>%
+  mutate(word = reorder(word, tf_idf)) %>% 
+  ggplot(aes(x=word, y=tf_idf)) +
+  geom_col()+
+  xlab(NULL) +
+  coord_flip()+
+  theme_pander(base_size = 11, base_family = "sans")+
+  labs(title="Japan, Fance, and Korea are of high importance in foreign policy",
+       caption="Data Source: whitehouse.gov")
+```
+
+From this graph, we can see which countries are the U.S. is working on the relationship with. Japan is the most important one, followed by France, Korea, UK, Poland, and Israel. The trade war between China and the U.S. is very famous but the importance of China is pretty low compared to other countries in the foreign policy area.
+
+```{r tfidf4}
+tfidf %>%
+  filter(topic=="Immigration") %>% 
+  top_n(30) %>%
+  mutate(word = reorder(word, tf_idf)) %>% 
+  ggplot(aes(x=word, y=tf_idf)) +
+  geom_col()+
+  xlab(NULL) +
+  coord_flip()+
+  theme_pander(base_size = 11, base_family = "sans")+
+  labs(title="The topic Immigration focuses on the US-Mexico border",
+       caption="Data Source: whitehouse.gov")
+```
+
+The topic "Immigration" mainly focuses on the immigration related to the US-Mexico border. From the graph we can see the words "illegal", "crime", "crisis", and "refugee", which shows a negative attitude of the government towards immigration.

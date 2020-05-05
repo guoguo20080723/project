@@ -1,0 +1,101 @@
+---
+title: "Data science project - Topic modeling"
+author: "Yingtong Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
+library(tidyverse)
+library(lubridate)
+library(tidytext)
+library(ggthemes)
+library(topicmodels)
+```
+
+## Topic model - Latent Dirichlet Allocation (LDA)
+Topic modeling is a method for unsupervised classification of text. Similar to clustering on numeric data, topic modeling can divide the text into natural groups and these groups will have different topics.
+
+Latent Dirichlet Allocation (LDA) is a common topic model. Suppose I have several documents, each document contains some words. LDA can divide the text into groups and find which words are related to which topic. It can also find which topics are related to which document. It can be applied to sentiment analysis, understanding stance and polarization in politics and analyzing social networks. Unlike Tf-idf, it can capture the common keywords of the documents. 
+
+However, a big problem of LDA is that topics are soft clusters so it is hard to test the quality of the model. In addition, since it is unsupervised classification, the model does not explain what are the topics, though running LDA is easy, so sometimes it is hard to interpret the topic output if there is a lot of overlapping of words among topics. 
+
+Here I will use the package topicmodels to implement the LDA model, and I choose text in different months as documents.
+
+```{r data}
+#import the dataset
+all <- read.csv("all.csv")
+#adjust the format
+all$title <- as.character(all$title)
+all$time <- ymd(all$time)
+#add a new column of year-month
+all <- mutate(all, month=format(as.Date(time), "%Y-%m"))
+#customize stopwords
+mystopwords <- tibble(word = c("donald", "trump", "president", "pence", "vice", "remarks", "press", "presidential", "statement", "secretary", "meeting", "readout", "announces", "briefing", "administration", "trump's", "prime", "minister"))
+```
+
+```{r lda}
+document<-
+  na.omit(all) %>% 
+  group_by(month) %>%
+  #from sentences to words
+  unnest_tokens(word, title) %>%  
+  #drop stopwords and digits
+  anti_join(stop_words) %>%  
+  anti_join(mystopwords) %>%
+  ungroup() %>%
+  filter(!str_detect(word, "\\d"))%>% 
+  count(month, word, sort=T)
+
+document2 <- 
+  document %>%
+  #adjust the format
+  cast_dtm(month, word, n)
+
+#create a topic model with two topics
+document_lda <- LDA(document2, k = 2, control = list(seed = 20200427))
+#beta is the probability of the word generated from that topic
+document_topics <- tidy(document_lda, matrix = "beta")
+
+#visualize the top 20 most likely words generated from each topic
+top_terms <- 
+  document_topics %>%
+  group_by(topic) %>%
+  top_n(30, beta) %>%
+  ungroup() %>%
+  #add a label to the topic
+  mutate(topic_label = str_glue("Topic {topic}")) %>% 
+  mutate(term = reorder(term, beta))
+  
+ggplot(top_terms, aes(x = term, y = beta, fill = factor(topic_label))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic_label, scales="free") +
+  coord_flip() +
+  xlab(NULL) +
+  theme_pander(base_size = 10, base_family = "sans") +
+  labs(title = "Dividing the information of titles into two groups",
+       caption = "Data Source: whitehouse.gov")
+```
+
+From this graph we can see there are many overlapping words associated with the two topics. It is very possible because the contents comes from the titles of white house news. These titles have many similarities in structures. But the word "national" has a larger beta in Topic 1, and Topic 2 include the words "japan" and "korea", so it is more likely that Topic 2 has an external focus, while Topic 1 focuses on domestic affairs.
+
+```{r lda2}
+document_class <- 
+  #gamma is the proportion of the document generated from that topic
+  tidy(document_lda, matrix = "gamma") %>%
+  mutate(gamma = round(gamma,3)) %>%
+  #adjust the format of time
+  mutate(document=parse_date_time(document, "Ym"))
+
+ggplot(document_class,aes(x = document, y = gamma, fill = factor(topic))) +
+  geom_col(position = "stack") +
+  xlab(NULL) +
+  labs(fill = "Topic") +
+  theme_pander(base_size = 11, base_family = "sans") +
+  labs(title = "The Trump administration focuses more on domestic affairs since 2018 July",
+       caption = "Data Source: whitehouse.gov")
+```
+
+This graph shows the proportion of topics across time. For example, in 2020 March and April, gamma is 1 for Topic 1, which means all the contents are generated from Topic 1. Most of the months have a mixture of topics, but it seems that since 2018 July, the U.S. has had an internal focus.

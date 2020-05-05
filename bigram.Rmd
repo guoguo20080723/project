@@ -1,0 +1,140 @@
+---
+title: "Data science project - Bigram analysis"
+author: "Yingtong Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message=FALSE)
+knitr::opts_chunk$set(warning=FALSE)
+library(tidyverse)
+library(tidytext)
+library(igraph)
+library(ggraph)
+library(ggthemes)
+library(widyr)
+```
+
+## Bigram analysis
+Instead of considering words as units, n-grams consider consecutive sequences of words as units. It takes the order of the words into account. We can use n-grams to explore relationships between words and find which words often follow others immediately. However, to calculate the co-occurence matrix, the amount of calculation is much larger than Tf-idf.
+
+Here I will use bigram as an example to visualize the relationships between words through a network, and then explore the correlation between words.
+
+```{r bigram}
+#import the dataset
+all <- read.csv("all.csv")
+#from factor to character
+all$title<-as.character(all$title)
+#visualize most closely related words (words that appear together most often)
+bigram <-
+  all %>%
+  #from sentences to two consecutive words
+  unnest_tokens(bigram, title, token = "ngrams", n = 2) %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  #drop stopwords and digits
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word) %>%
+  filter(!str_detect(word1,"\\d")) %>%
+  filter(!str_detect(word2,"\\d")) %>%
+  count(word1, word2, topic, sort = TRUE) %>%
+  #drop words with low frequency
+  filter(n > 25) %>%
+  graph_from_data_frame()
+
+#produce a network of bigrams
+ggraph(bigram, layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n, color = topic), 
+                 edge_width = 1.5) +
+  geom_node_point(size = 2, alpha = 0.5) +
+  geom_node_text(aes(label = name), alpha = 0.7,
+                 hjust = 1, vjust = 1, size = 3) +
+  theme_void() +
+  scale_edge_alpha(guide = 'none') +
+  theme(legend.position = "bottom") +
+  theme(legend.text = element_text(size = 8)) +
+  theme(legend.title = element_blank())
+```
+
+The transparency of the connecting lines between points represents how often two words appear together, and the color of these lines represent the topics of the words. From the graph, we can see the four words "Canada", "Mexico", "trade", "agreement" are connected. This is probably realted to USMCA (United States-Mexico-Canada Agreement).The word "opioid" is connected to "crisis", indicating a severe problem of drug abuse. However, many connections come from the regular use of different phrases, such as "white"-"house", "prime"-"minister", and "united"-"kingdom", which contains little information.
+
+To explore the relationship between words, a better way is to examine the binary correlation. Here I will use phi coefficient, which compares the likelihood of both or neither words appearing to the likelihood of one word appearing wthout the other. I will use pairwise_cor() function in package widyr to calculate the coefficient and I can see what words tend to appear with the same topic.
+
+```{r bigram2}
+#calculate the correlation between words
+bigram2 <-
+  all %>% 
+  group_by(id) %>%
+  #from sentences to words
+  unnest_tokens(word,title) %>%  
+  #drop stopwords
+  anti_join(stop_words) %>%   
+  ungroup() %>%
+  #drop digits
+  filter(!str_detect(word,"\\d")) %>%
+  #drop words without topics
+  na.omit() %>%
+  group_by(word) %>%
+  #drop words with low frequency
+  filter(n() >= 20) %>%
+  pairwise_cor(word,topic,sort = TRUE)
+```
+
+We can find the most correlated words with the word we are interested in. Here I choose "coronavirus", "republican", and "border" as examples.
+
+```{r coronavirus}
+coronavirus<-
+  bigram2 %>%
+  filter(item1 == "coronavirus")
+
+coronavirus %>%
+  top_n(30) %>%
+  mutate(item2 = reorder(item2, correlation)) %>% 
+  ggplot(aes(x = item2, y = correlation)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  theme_pander(base_size = 11, base_family = "sans") +
+  labs(title = "'Opioid' and 'businesses' are highly correlated with coronavirus",
+       caption = "Data Source: whitehouse.gov")
+```
+
+The top 5 correlated words with coronavirus are "opioid", "healthcare", "jordan", "abe" and "businesses". From the graph we can see coronavirus is highly correlated with healthcare area, but it also has a large effect on businesses and people's life. The word "freedom" is probably related to the social distancing and quarantine rules. It is surprising to see "abe" and "Japan" having such a high rank.
+
+```{r republican}
+republican<-
+  bigram2 %>%
+  filter(item1 == "republican")
+
+republican %>%
+  top_n(30) %>%
+  mutate(item2 = reorder(item2, correlation)) %>% 
+  ggplot(aes(x = item2, y = correlation)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  theme_pander(base_size = 11, base_family = "sans") +
+  labs(title = "'Workers' and 'healthcare' are highly correlated with republican",
+       caption = "Data Source: whitehouse.gov")
+```
+
+The top 3 correlated words with republican are "workers", "healthcare", and "businesses". Most of the words are related to economy and employment, and we can also see tax cuts and coronavirus having a high rank. 
+
+```{r border}
+border<-
+  bigram2 %>%
+  filter(item1 == "border")
+
+border %>%
+  top_n(30) %>%
+  mutate(item2 = reorder(item2, correlation)) %>% 
+  ggplot(aes(x = item2, y = correlation)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  theme_pander(base_size = 11, base_family = "sans") +
+  labs(title = "'Homeland' and 'guard' are highly correlated with border",
+       caption = "Data Source: whitehouse.gov")
+```
+
+Most of the words correlated with border is related to national security and defense or immigration area. Some countries such as "Iran", "Mexico", and "Israel" are highly correlated with border.

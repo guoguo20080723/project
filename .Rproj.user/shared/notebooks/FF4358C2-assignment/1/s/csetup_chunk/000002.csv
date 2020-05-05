@@ -1,0 +1,41 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0","knitr::opts_chunk$set(message=FALSE)"
+"0","knitr::opts_chunk$set(warning=FALSE)"
+"0","library(tidyverse)"
+"0","library(tidymodels)"
+"2","³Ì¼­°ü¡®tidymodels¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","[30m-- [1mAttaching packages[22m -------------------------------------- tidymodels 0.1.0 --[39m
+"
+"2","[30m[32m¡Ì[30m [34mbroom    [30m 0.5.4     [32m¡Ì[30m [34mrsample  [30m 0.0.5
+[32m¡Ì[30m [34mdials    [30m 0.0.4     [32m¡Ì[30m [34mtune     [30m 0.0.1
+[32m¡Ì[30m [34minfer    [30m 0.5.1     [32m¡Ì[30m [34mworkflows[30m 0.1.0
+[32m¡Ì[30m [34mparsnip  [30m 0.0.5     [32m¡Ì[30m [34myardstick[30m 0.0.5
+[32m¡Ì[30m [34mrecipes  [30m 0.1.9     [39m
+"
+"2","³Ì¼­°ü¡®broom¡¯ÊÇÓÃR°æ±¾3.6.2 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®dials¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®scales¡¯ÊÇÓÃR°æ±¾3.6.2 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®infer¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®parsnip¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®recipes¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®rsample¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®tune¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®workflows¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","³Ì¼­°ü¡®yardstick¡¯ÊÇÓÃR°æ±¾3.6.3 À´½¨ÔìµÄ"
+"2","[30m-- [1mConflicts[22m ----------------------------------------- tidymodels_conflicts() --
+[31mx[30m [34migraph[30m::[32mas_data_frame()[30m masks [34mdplyr[30m::as_data_frame(), [34mtibble[30m::as_data_frame()
+[31mx[30m [34migraph[30m::[32mcompose()[30m       masks [34mpurrr[30m::compose()
+[31mx[30m [34mdials[30m::[32mdegree()[30m         masks [34migraph[30m::degree()
+[31mx[30m [34mscales[30m::[32mdiscard()[30m       masks [34mpurrr[30m::discard()
+[31mx[30m [34mdplyr[30m::[32mfilter()[30m         masks [34mstats[30m::filter()
+[31mx[30m [34mrecipes[30m::[32mfixed()[30m        masks [34mstringr[30m::fixed()
+[31mx[30m [34migraph[30m::[32mgroups()[30m        masks [34mdplyr[30m::groups()
+[31mx[30m [34mdplyr[30m::[32mlag()[30m            masks [34mstats[30m::lag()
+[31mx[30m [34mdials[30m::[32mmargin()[30m         masks [34mggplot2[30m::margin()
+[31mx[30m [34mdials[30m::[32mneighbors()[30m      masks [34migraph[30m::neighbors()
+[31mx[30m [34mpurrr[30m::[32mpluck()[30m          masks [34mrvest[30m::pluck()
+[31mx[30m [34migraph[30m::[32msimplify()[30m      masks [34mpurrr[30m::simplify()
+[31mx[30m [34myardstick[30m::[32mspec()[30m       masks [34mreadr[30m::spec()
+[31mx[30m [34mrecipes[30m::[32mstep()[30m         masks [34mstats[30m::step()
+[31mx[30m [34mrecipes[30m::[32myj_trans()[30m     masks [34mscales[30m::yj_trans()[39m
+"
