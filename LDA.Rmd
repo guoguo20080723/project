@@ -4,7 +4,7 @@ author: "Yingtong Guo"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message=FALSE)
 knitr::opts_chunk$set(warning=FALSE)
@@ -15,16 +15,19 @@ library(ggthemes)
 library(topicmodels)
 ```
 
-## Topic model - Latent Dirichlet Allocation (LDA)
+## Introduction to topic model - Latent Dirichlet Allocation (LDA)
 Topic modeling is a method for unsupervised classification of text. Similar to clustering on numeric data, topic modeling can divide the text into natural groups and these groups will have different topics.
 
-Latent Dirichlet Allocation (LDA) is a common topic model. Suppose I have several documents, each document contains some words. LDA can divide the text into groups and find which words are related to which topic. It can also find which topics are related to which document. It can be applied to sentiment analysis, understanding stance and polarization in politics and analyzing social networks. 
+Latent Dirichlet Allocation (LDA) is a common topic model. Suppose I have several documents, each document contains some words. LDA can divide the text into groups and find which words are related to which topic. It can also find which topics are related to which document. 
+
+LDA has a large range of applications. It can be applied to language models, sentiment analysis, understanding stance and polarization in politics, analyzing historical documents to find themes reflecting temporal trends, and analyzing social networks and social media to find regional variation. 
 
 However, a big problem of LDA is that topics are soft clusters so it is hard to test the quality of the model. In addition, since it is unsupervised classification, the model does not explain what are the topics, though running LDA is easy, so sometimes it is hard to interpret the topic output if there is a lot of overlapping of words among topics. 
 
 Unlike Tf-idf, it can capture the common keywords of the documents. Documents are assigned Tf-idf scores based on how well they can fit each topic, while topic models do not care about or do not trust the original topics and they will produce new topics in the model. It is much easier to interpret the Tf-idf scores than the topic model results.
 
-Here I will use the package topicmodels to implement the LDA model, and I choose text in different months as documents.
+## Using LDA model to produce two topics 
+Here I will use the package *topicmodels* and *tidytext* to implement the LDA model. I choose text in different months as documents and I produce two topics using the model.
 
 ```{r data}
 #import the dataset
@@ -38,6 +41,7 @@ all <- mutate(all, month=format(as.Date(time), "%Y-%m"))
 mystopwords <- tibble(word = c("donald", "trump", "president", "pence", "vice", "remarks", "press", "presidential", "statement", "secretary", "meeting", "readout", "announces", "briefing", "administration", "trump's", "prime", "minister"))
 ```
 
+### Visualize the most likely words generated from the two topics
 ```{r lda}
 document<-
   na.omit(all) %>% 
@@ -61,7 +65,7 @@ document_lda <- LDA(document2, k = 2, control = list(seed = 20200427))
 #beta is the probability of the word generated from that topic
 document_topics <- tidy(document_lda, matrix = "beta")
 
-#visualize the top 20 most likely words generated from each topic
+#visualize the top 30 most likely words generated from each topic
 top_terms <- 
   document_topics %>%
   group_by(topic) %>%
@@ -77,21 +81,23 @@ ggplot(top_terms, aes(x = term, y = beta, fill = factor(topic_label))) +
   coord_flip() +
   xlab(NULL) +
   theme_pander(base_size = 10, base_family = "sans") +
-  labs(title = "Dividing the information of titles into two groups",
+  labs(title = "The most likely words generated from the two topics",
        caption = "Data Source: whitehouse.gov")
 ```
 
 From this graph we can see there are many overlapping words associated with the two topics. It is very possible because the contents comes from the titles of white house news. These titles have many similarities in structures. But the word "national" has a larger beta in Topic 1, and Topic 2 include the words "japan" and "korea", so it is more likely that Topic 2 has an external focus, while Topic 1 focuses on domestic affairs.
 
+### Visualize the proportion of the contents in each month generated from the two topics
 ```{r lda2}
 document_class <- 
   #gamma is the proportion of the document generated from that topic
   tidy(document_lda, matrix = "gamma") %>%
   mutate(gamma = round(gamma,3)) %>%
   #adjust the format of time
-  mutate(document=parse_date_time(document, "Ym"))
+  mutate(document = parse_date_time(document, "Ym"))
 
-ggplot(document_class,aes(x = document, y = gamma, fill = factor(topic))) +
+#visualize the proportion of the contents generated from the two topics across time
+ggplot(document_class, aes(x = document, y = gamma, fill = factor(topic))) +
   geom_col(position = "stack") +
   xlab(NULL) +
   labs(fill = "Topic") +
@@ -101,3 +107,7 @@ ggplot(document_class,aes(x = document, y = gamma, fill = factor(topic))) +
 ```
 
 This graph shows the proportion of topics across time. For example, in 2020 March and April, gamma is 1 for Topic 1, which means all the contents are generated from Topic 1. Most of the months have a mixture of topics, but it seems that since 2018 July, the U.S. has had an internal focus.
+
+## References
+1. Silge, J., & Robinson, D. (2017). Text mining with R: A tidy approach. " O'Reilly Media, Inc.".
+2. Boyd-Graber, J., Hu, Y., & Mimno, D. (2017). Applications of topic models. Foundations and Trends® in Information Retrieval, 11(2-3), 143-296.
