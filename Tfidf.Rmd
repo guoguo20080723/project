@@ -83,7 +83,7 @@ tfidf %>%
   top_n(30) %>%
   mutate(word = reorder(word, tf_idf)) %>% 
   ggplot(aes(x = word, y = tf_idf)) +
-  geom_col() +
+  geom_col(fill = "coral", alpha = 0.6) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
@@ -99,7 +99,7 @@ tfidf %>%
   top_n(30) %>%
   mutate(word = reorder(word, tf_idf)) %>% 
   ggplot(aes(x = word, y = tf_idf)) +
-  geom_col() +
+  geom_col(fill = "coral", alpha = 0.6) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
@@ -107,7 +107,7 @@ tfidf %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-From this graph, we can see which countries the U.S. is working on the relationship with. Japan is the most important one, followed by France, Korea, the UK, Poland, and Israel. The trade war between China and the U.S. is very famous but the importance of China is pretty low compared to other countries in the foreign policy area.
+From this graph, we can see which countries the U.S. is working on the relationship with. Japan is the most important one, followed by France, Korea, the UK, Poland, and Israel. The trade war between China and the U.S. is very famous but the importance of China is pretty low compared to other countries. It is probably because the topic Economy & Jobs also mentions China a lot so Tf-idf gives less weight to China in foreign policy area.
 
 ```{r tfidf4}
 tfidf %>%
@@ -115,7 +115,7 @@ tfidf %>%
   top_n(30) %>%
   mutate(word = reorder(word, tf_idf)) %>% 
   ggplot(aes(x = word, y = tf_idf)) +
-  geom_col() +
+  geom_col(fill = "coral", alpha = 0.6) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +

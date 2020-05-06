@@ -98,7 +98,8 @@ coronavirus %>%
   top_n(30) %>%
   mutate(item2 = reorder(item2, correlation)) %>% 
   ggplot(aes(x = item2, y = correlation)) +
-  geom_col() +
+  geom_segment(aes(xend = item2, yend = 0), alpha = 0.6) +
+  geom_point(size=2, color="coral", alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
@@ -117,7 +118,8 @@ republican %>%
   top_n(30) %>%
   mutate(item2 = reorder(item2, correlation)) %>% 
   ggplot(aes(x = item2, y = correlation)) +
-  geom_col() +
+  geom_segment(aes(xend = item2, yend = 0), alpha = 0.6) +
+  geom_point(size=2, color="coral", alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
@@ -136,7 +138,8 @@ border %>%
   top_n(30) %>%
   mutate(item2 = reorder(item2, correlation)) %>% 
   ggplot(aes(x = item2, y = correlation)) +
-  geom_col() +
+  geom_segment(aes(xend = item2, yend = 0), alpha = 0.6) +
+  geom_point(size=2, color="coral", alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
