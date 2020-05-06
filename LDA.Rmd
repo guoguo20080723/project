@@ -18,9 +18,11 @@ library(topicmodels)
 ## Topic model - Latent Dirichlet Allocation (LDA)
 Topic modeling is a method for unsupervised classification of text. Similar to clustering on numeric data, topic modeling can divide the text into natural groups and these groups will have different topics.
 
-Latent Dirichlet Allocation (LDA) is a common topic model. Suppose I have several documents, each document contains some words. LDA can divide the text into groups and find which words are related to which topic. It can also find which topics are related to which document. It can be applied to sentiment analysis, understanding stance and polarization in politics and analyzing social networks. Unlike Tf-idf, it can capture the common keywords of the documents. 
+Latent Dirichlet Allocation (LDA) is a common topic model. Suppose I have several documents, each document contains some words. LDA can divide the text into groups and find which words are related to which topic. It can also find which topics are related to which document. It can be applied to sentiment analysis, understanding stance and polarization in politics and analyzing social networks. 
 
 However, a big problem of LDA is that topics are soft clusters so it is hard to test the quality of the model. In addition, since it is unsupervised classification, the model does not explain what are the topics, though running LDA is easy, so sometimes it is hard to interpret the topic output if there is a lot of overlapping of words among topics. 
+
+Unlike Tf-idf, it can capture the common keywords of the documents. Documents are assigned Tf-idf scores based on how well they can fit each topic, while topic models do not care about or do not trust the original topics and they will produce new topics in the model. It is much easier to interpret the Tf-idf scores than the topic model results.
 
 Here I will use the package topicmodels to implement the LDA model, and I choose text in different months as documents.
 
