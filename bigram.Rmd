@@ -21,7 +21,7 @@ Instead of considering words as units, n-grams consider consecutive sequences of
 
 The applications of n-grams include spelling correction, sentiment classification, and text summarization. N-grams are also used in supervised machine learning models such as Naive Bayes and MaxEnt models. We can compute the probability of a sentence, a sequence of words, or an upcoming word in a probabilistic n-gram language model.
 
-However, to calculate the co-occurence matrix, the amount of calculation is very large. In addition, the n-gram model depends significantly on the corpus and the results of the model will vary with the value n. It is hard to use the analysis to predict the probablity of word A following word B because any data is limited and it is likely to miss some perfectly acceptable word sequences.
+However, to calculate the co-occurrence matrix, the amount of calculation is very large. In addition, the n-gram model depends significantly on the corpus and the results of the model will vary with the value n. It is hard to use the analysis to predict the probability of word A following word B because any data is limited and it is likely to miss some perfectly acceptable word sequences.
 
 Here I will use bigram as an example, which is a sequence of 2 words such as "remarks by". I will visualize the relationships between words through a network, and then explore the correlation between words.
 
@@ -61,10 +61,10 @@ ggraph(bigram, layout = "fr") +
   theme(legend.title = element_blank())
 ```
 
-The transparency of the connecting lines between points represents how often two words appear together, and the color of these lines represent the topics of the words. From the graph, we can see the four words "Canada", "Mexico", "trade", "agreement" are connected. This is probably realted to USMCA (United States-Mexico-Canada Agreement).The word "opioid" is connected to "crisis", indicating a severe problem of drug abuse. However, many connections come from the regular use of different phrases, such as "white"-"house", "prime"-"minister", and "united"-"kingdom", which contains little information.
+I use the package `tidytext`to produce bigrams, and use packages `igraph` and `ggraph` to produce the network. The transparency of the connecting lines between points represents how often two words appear together, and the color of these lines represent the topics of the words. From the graph, we can see the four words "Canada", "Mexico", "trade", "agreement" are connected. This is probably related to USMCA (United States-Mexico-Canada Agreement). The word "opioid" is connected to "crisis", indicating a severe problem of drug abuse. However, many connections come from the regular use of different phrases, such as "white"-"house", "prime"-"minister", and "united"-"kingdom", which contains little information.
 
 ## Explore the binary correlation between words
-To explore the relationship between words, a better way is to examine the binary correlation. Here I will use phi coefficient, which compares the likelihood of both or neither words appearing to the likelihood of one word appearing wthout the other. I will use pairwise_cor() function in package widyr to calculate the coefficient and I can see what words tend to appear together with the same topic.
+To explore the relationship between words, a better way is to examine the binary correlation. Here I will use phi coefficient, which compares the likelihood of both or neither words appearing to the likelihood of one word appearing without the other. I will use `pairwise_cor()` function in the package `widyr` to calculate the coefficient and I can see what words tend to appear together with the same topic.
 
 ```{r bigram2}
 #calculate the correlation between words
@@ -105,7 +105,7 @@ coronavirus %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-The top 5 correlated words with coronavirus are "opioid", "healthcare", "jordan", "abe" and "businesses". From the graph we can see coronavirus is highly correlated with healthcare area, but it also has a large effect on businesses and people's life. The word "freedom" is probably related to the social distancing and quarantine rules. It is surprising to see "abe" and "Japan" having such a high rank.
+The top 5 correlated words with "coronavirus" are "opioid", "healthcare", "jordan", "abe" and "businesses". From the graph, we can see coronavirus is highly correlated with healthcare area, but it also has a large effect on businesses and people's life. The word "freedom" is probably related to social distancing and quarantine rules. It is surprising to see "abe" and "Japan" having such a high rank.
 
 ```{r republican}
 republican <-
@@ -124,7 +124,7 @@ republican %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-The top 3 correlated words with republican are "workers", "healthcare", and "businesses". Most of the words are related to economy and employment, and we can also see tax cuts and coronavirus having a high rank. 
+The top 3 correlated words with "republican" are "workers", "healthcare", and "businesses". Most of the words are related to economy and employment, and we can also see tax cuts and coronavirus having a high rank. 
 
 ```{r border}
 border <-
@@ -143,7 +143,7 @@ border %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-Most of the words correlated with border is related to national security and defense or immigration fields. Some countries such as "Iran", "Mexico", and "Israel" are highly correlated with border.
+Most of the words correlated with "border" are related to national security and defense or immigration fields. Some countries such as "Iran", "Mexico", and "Israel" are highly correlated with border.
 
 ## References
 1. Silge, J., & Robinson, D. (2017). Text mining with R: A tidy approach. " O'Reilly Media, Inc.".
