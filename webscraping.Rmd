@@ -23,11 +23,13 @@ The most common application is social media web scraping. There is no database f
 ## Web scraping information from whitehouse.gov
 I intend to get the titles, topics, and published time of all the news on the whitehouse.gov website. Manually copying and pasting information from the web pages are feasible but time-consuming, so I use the package rvest to do the web scraping. The program first requests data in the form of HTML from the white house website and then parses the data to extract useful information. I did web scraping for four times because there are four kinds of news, including remarks, articles, presidential actions, and briefings and statements. I have collected all the information from January 20, 2017 to April 25, 2020.
 
+The loop will not work if all the news on the web page lacks a topic. I did not spend much time exploring the reasons behind because this situation is very rare. My solution is to web scrape such pages individually (the code works well without the loop) and then add them to the dataset by hand.
+
 ### Web scraping remarks
 
 ![](images/remark.png)
 
-The code of getting the topics is complicated. Some news do not have topics, so I have to choose a node which include both the information of time and topic. Then I can exclude the information of time and produce NAs. The process is similar in the other three kinds of news.
+The code of getting the topics is complicated. Some news do not have topics, so I have to choose a node which include both the information of time and topic. Then I can exclude the information of time and produce NAs. The process is similar in the other three kinds of news. 
 
 ```{r remarks, eval=FALSE}
 url<-'https://www.whitehouse.gov/remarks/page/'
