@@ -18,20 +18,20 @@ library(ggthemes)
 Tf-idf is used to measure the importance of a word to a document in a collection. Tf-idf is composed of two terms: Term Frequency (TF) and Inverse Document Frequency (IDF). 
 $$Tf-idf (\boldsymbol{a})  = TF (\boldsymbol{a}) *  IDF(\boldsymbol{a})$$
 
-Term Frequency measures the frequency of term in a document.
+Term Frequency measures the frequency of the terms in a document.
 $$TF (\boldsymbol{a}) = \frac{Frequency\:of\:term\:\boldsymbol{a}\:in\:the\:document}{Total\:number\:of\:terms\:in\:the\:document}$$
 
 Inverse Document Frequency measures the importance of a term.
 $$IDF(\boldsymbol{a}) = ln\frac{Total\:number\:of\:documents}{ Number\:of\:documents\:including\:term\:\boldsymbol{a}}$$
 
-If I evaluate the most important words in each topic simply by counting the number of times each word appears, then probably I can see some words like "is" and "he" getting a high rank. Tf-idf can solve this problem by giving less weight to words that are often used in all the topics, so it can filter out some common but irrelavant words and only keep the important words.
+If I evaluate the most important words in each topic simply by counting the number of times each word appears, then probably I can see some words like "is" and "he" getting a high rank. Tf-idf can solve this problem by giving less weight to words that are often used in all the topics, so it can filter out some common but irrelevant words and only keep the important words.
 
-Tf-idf is efficient and easy to explain, but it does not consider the similarities between the words. Tf-idf is based on bag-of-words model (a text is the bag of its words, disregarding grammar or word order), so it does not capture the positions of the words or the co-occurrences in the document. In addition, Tf-idf severely depends on the corpus because it tends to conceal some keywords of the same topic. For example, if all of my documents are related to trade, the weight of keywords related to trade will be lower.
+Tf-idf is efficient and easy to explain, but it does not consider the similarities between the words. Tf-idf is based on the bag-of-words model (a text is the bag of its words, disregarding grammar or word order), so it does not capture the positions of the words or the co-occurrences in the document. In addition, Tf-idf severely depends on the corpus because it tends to conceal some keywords of the same topic. For example, if all of my documents are related to trade, the weight of keywords related to trade will be lower.
 
-As the example I will show below, one of the application of Tf-idf is keyword extraction. Words with high values of Tf-idf are the most relevant words to the document, so these words can be considered as keywords for the document. We can set the keywords as the features of the document and prepare for tasks involving texual similarity. Another application is document search. With a search engine, the results will be displayed based on their relevance using Tf-idf. 
+As the example I will show below, one of the applications of Tf-idf is keyword extraction. Words with high values of Tf-idf are the most relevant words to the document, so these words can be considered as keywords for the document. We can set the keywords as the features of the document and prepare for tasks involving textual similarity. Another application is the document search. With a search engine, the results will be displayed based on their relevance using Tf-idf. 
 
 ## Visualize the keywords of each topic using Tf-idf
-Here I will use the package tidytext to calulate Tf-idf and explore what are the most important words in each topic.
+Here I will use the package `tidytext` to calculate Tf-idf and explore what are the most important words in each topic.
 
 ```{r tf-idf}
 #import the dataset
@@ -73,9 +73,9 @@ tfidf %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-This graph clearly shows the most important words within each topic. In the topic "Budget & Spending", the most important words are "tax" and "cuts"; in the topic "Immigration", "border", "crisis", and "illegal" are of high importance; in the topic "Healthcare", "coronavirus" is much more important that other words; in the topic "Economy & Jobs", "agreement" and "trade" are the most important words; in the topic "Foreign Policy", "Japan", "Prime", and "Minister" indicate that the bilateral relationship between Japan and the U.S. is very important in this topic. 
+This graph clearly shows the most important words within each topic. In the topic "Budget & Spending", the most important words are "tax" and "cuts"; in the topic "Immigration", "border", "crisis", and "illegal" are of high importance; in the topic "Healthcare", "coronavirus" is much more important than other words; in the topic "Economy & Jobs", "agreement" and "trade" are the most important words; in the topic "Foreign Policy", "Japan", "Prime", and "Minister" indicate that the bilateral relationship between Japan and the U.S. is very important in this topic. 
 
-We can analyze a topic separately for more information, here I choose topics "Healthcare", "Foreign Policy" and "Immigration" as a example.
+We can analyze a topic separately for more information. Here I choose topics "Healthcare", "Foreign Policy" and "Immigration" as examples.
 
 ```{r tfidf2}
 tfidf %>%
@@ -107,7 +107,7 @@ tfidf %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-From this graph, we can see which countries the U.S. is working on the relationship with. Japan is the most important one, followed by France, Korea, UK, Poland, and Israel. The trade war between China and the U.S. is very famous but the importance of China is pretty low compared to other countries in the foreign policy area.
+From this graph, we can see which countries the U.S. is working on the relationship with. Japan is the most important one, followed by France, Korea, the UK, Poland, and Israel. The trade war between China and the U.S. is very famous but the importance of China is pretty low compared to other countries in the foreign policy area.
 
 ```{r tfidf4}
 tfidf %>%
@@ -123,7 +123,7 @@ tfidf %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-The keywords of "Immigration" contain "border", "crisis", and "customs". From the graph we can see many negative words such as "illegal", "crime", "crisis", and "refugee", which may indicate the government's attitude towards immigration.
+The keywords of "Immigration" contain "border", "crisis", and "customs". From the graph, we can see many negative words such as "illegal", "crime", "crisis", and "refugee", which may indicate the government's attitude towards immigration.
 
 ## References
 1. Silge, J., & Robinson, D. (2017). Text mining with R: A tidy approach. " O'Reilly Media, Inc.".

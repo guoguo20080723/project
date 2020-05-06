@@ -6,8 +6,8 @@ output: html_document
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(message=FALSE)
-knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 library(tidyverse)
 library(lubridate)
 library(tidytext)
@@ -27,7 +27,7 @@ However, a big problem of LDA is that topics are soft clusters so it is hard to 
 Unlike Tf-idf, it can capture the common keywords of the documents. Documents are assigned Tf-idf scores based on how well they can fit each topic, while topic models do not care about or do not trust the original topics and they will produce new topics in the model. It is much easier to interpret the Tf-idf scores than the topic model results.
 
 ## Using LDA model to produce two topics 
-Here I will use the package *topicmodels* and *tidytext* to implement the LDA model. I choose text in different months as documents and I produce two topics using the model.
+Here I will use the package `topicmodels` and `tidytext` to implement the LDA model. I choose text in different months as documents and I produce two topics using the model.
 
 ```{r data}
 #import the dataset
@@ -85,7 +85,7 @@ ggplot(top_terms, aes(x = term, y = beta, fill = factor(topic_label))) +
        caption = "Data Source: whitehouse.gov")
 ```
 
-From this graph we can see there are many overlapping words associated with the two topics. It is very possible because the contents comes from the titles of white house news. These titles have many similarities in structures. But the word "national" has a larger beta in Topic 1, and Topic 2 include the words "japan" and "korea", so it is more likely that Topic 2 has an external focus, while Topic 1 focuses on domestic affairs.
+From this graph, we can see there are many overlapping words associated with the two topics. It is very possible because the contents come from the titles of white house news. These titles have many similarities in structures. But the word "national" has a larger beta in Topic 1, and Topic 2 include the words "japan" and "korea", so it is more likely that Topic 2 has an external focus, while Topic 1 focuses on domestic affairs.
 
 ### Visualize the proportion of the contents in each month generated from the two topics
 ```{r lda2}

@@ -4,10 +4,10 @@ author: "Yingtong Guo"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(message=FALSE)
-knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 library(tidyverse)
 library(lubridate)
 library(tidytext)
@@ -23,15 +23,15 @@ all <- read.csv("all.csv")
 ## Frequency of topics across time
 ```{r topic}
 #visualize the topic frequency across time
-ggplot(na.omit(all),aes(x=ymd(time),y=count)) +
+ggplot(na.omit(all), aes(x = ymd(time), y = count)) +
   geom_line() +
   xlab(NULL) +
   ylab(NULL) +
-  facet_wrap(~topic)+
-  theme_pander(base_size = 8, base_family = "sans")+
-  labs(title="The Frequency of the Topic Healthcare Has a Sharp Rise in 2020",
-       subtitle="The topic frequency of whitehouse news since Trump took office",
-       caption="Data Source: whitehouse.gov")
+  facet_wrap(~topic) +
+  theme_pander(base_size = 8, base_family = "sans") +
+  labs(title = "The Frequency of the Topic Healthcare Has a Sharp Rise in 2020",
+       subtitle = "The topic frequency of whitehouse news since Trump took office",
+       caption = "Data Source: whitehouse.gov")
 ```
 
 "Foreign Policy" is the most important topic, while "Social Programs" is the least. The frequency of most topics has a stable trend of increasing, but the frequency of "Healthcare" has a sharp rise in 2020, which is related to the coronavirus.
@@ -41,52 +41,62 @@ ggplot(na.omit(all),aes(x=ymd(time),y=count)) +
 #visualize the word frequency through a word cloud
 #from factor to character
 all$title<-as.character(all$title)
+
 text <-
   all %>% 
   group_by(id) %>%
   #from sentences to words
-  unnest_tokens(word,title) %>%  
+  unnest_tokens(word, title) %>%  
   #drop stopwords
   anti_join(stop_words) %>%   
   ungroup() %>%
   #drop digits
-  filter(!str_detect(word,"\\d"))
+  filter(!str_detect(word, "\\d"))
 
-wordcloud<-
+wordcloud <-
   text %>%
   #count the number of times each word appears
-  count(word,sort=T) %>%
-  filter(n>50)
+  count(word,sort = T) %>%
+  #filter out words with low frequency
+  filter(n > 50)
 
-#produce a word cloud through package ggwordcloud
-ggplot(wordcloud,aes(label=word,size=n,color=n)) +
-  ggwordcloud::geom_text_wordcloud_area(rm_outside=TRUE) +
-  scale_size_area(max_size=30) +
+#produce a word cloud
+ggplot(wordcloud, aes(label = word, size = n, color = n)) +
+  ggwordcloud::geom_text_wordcloud_area(rm_outside = TRUE) +
+  scale_size_area(max_size = 30) +
   scale_color_gradient(low = "royalblue", high = "darkred") +
-  theme_minimal()
+  theme_minimal() +
+  labs(title = "The word cloud of whitehouse news titles since Trump took office",
+       caption = "Data Source: whitehouse.gov")
 
 ```
 
-The wordcloud shows the most frequent words in the titles of whitehouse news. From the graph we can see "remarks", "trump", "donald", "vice", and "president" are the top 5 most frequent words, but this graph does not give much information about the working focus of the white house. The most frequent word is "president" because all the news of remarks has a beginning of "Remarks by President Trump" or "Remarks by Vice President Pence"
+I use the package `tidytext` to produce unigrams and then use the package `ggwordcloud` to produce the word cloud. The word cloud shows the most frequent words in the titles of white house news. From the graph we can see "remarks", "trump", "donald", "vice", and "president" are the top 5 most frequent words, but this graph does not give much information about the working focus of the white house. The most frequent word is "president" because all the news of remarks has a beginning of "Remarks by President Trump" or "Remarks by Vice President Pence"
 
 ```{r wordcloud2}
-#modify the word cloud
+#customize stopwords
 mystopwords <- tibble(word = c("donald", "trump", "president", "pence", "vice", "remarks", "press", "presidential", "statement", "secretary", "meeting", "readout", "announces", "briefing", "administration", "trump's", "prime", "minister"))
 
-wordcloud2<-
+wordcloud2 <-
   text %>%
   #drop the frequent words with low importance
   anti_join(mystopwords) %>%
   #count the number of times each word appears
-  count(word,sort=T) %>%
-  filter(n>50)
+  count(word, sort = T) %>%
+  #filter out words with low frequency
+  filter(n > 50)
 
-#produce a word cloud through package ggwordcloud
-ggplot(wordcloud2,aes(label=word,size=n,color=n)) +
-  ggwordcloud::geom_text_wordcloud_area(rm_outside=TRUE) +
-  scale_size_area(max_size=15) +
+#produce a word cloud
+ggplot(wordcloud2, aes(label = word, size = n, color = n)) +
+  ggwordcloud::geom_text_wordcloud_area(rm_outside = TRUE) +
+  scale_size_area(max_size = 15) +
   scale_color_gradient(low = "royalblue", high = "darkred") +
-  theme_minimal()
+  theme_minimal() +
+  labs(title = "The modified word cloud of whitehouse news titles since Trump took office",
+       caption = "Data Source: whitehouse.gov")
 ```
 
-The data gets rid of some frequent words with low importance, such as "donald", "trump", and "president". The new word cloud can show more information now. One of the most frequent words "bilateral" is obviously related to foreign policy, but the information of this word cloud is still limited and hard to explain, so I will use tf-idf to explore more information about the most frequent words.
+The data gets rid of some frequent words with low importance, such as "donald", "trump", and "president", so the new word cloud can show more information now. One of the most frequent words "bilateral" is obviously related to foreign policy, but the information of this word cloud is still limited and hard to explain, so I will use Tf-idf in the next section to explore more information about the most frequent words.
+
+## Reference
+1. Pennec, E., & Slowikowski, K. (2018). ggwordcloud: A Word Cloud Geom for'ggplot2'. R package version 0.3. 0. URL https://cran.r-project.org/package=ggwordcloud.
