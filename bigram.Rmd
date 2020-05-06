@@ -16,16 +16,21 @@ library(ggthemes)
 library(widyr)
 ```
 
-## Bigram analysis
-Instead of considering words as units, n-grams consider consecutive sequences of words as units. It takes the order of the words into account. We can use n-grams to explore relationships between words and find which words often follow others immediately. However, to calculate the co-occurence matrix, the amount of calculation is much larger than Tf-idf.
+## Introduction to n-gram analysis
+Instead of considering words as units, n-grams consider consecutive sequences of n words as units. It takes the order of the words into account. We can use n-grams to explore relationships between words and find which words often follow others immediately.
 
-Here I will use bigram as an example to visualize the relationships between words through a network, and then explore the correlation between words.
+The applications of n-grams include spelling correction, sentiment classification, and text summarization. N-grams are also used in supervised machine learning models such as Naive Bayes and MaxEnt models. We can compute the probability of a sentence, a sequence of words, or an upcoming word in a probabilistic n-gram language model.
 
+However, to calculate the co-occurence matrix, the amount of calculation is very large. In addition, the n-gram model depends significantly on the corpus and the results of the model will vary with the value n. It is hard to use the analysis to predict the probablity of word A following word B because any data is limited and it is likely to miss some perfectly acceptable word sequences.
+
+Here I will use bigram as an example, which is a sequence of 2 words such as "remarks by". I will visualize the relationships between words through a network, and then explore the correlation between words.
+
+## Visualize the most related words through a network
 ```{r bigram}
 #import the dataset
 all <- read.csv("all.csv")
 #from factor to character
-all$title<-as.character(all$title)
+all$title <- as.character(all$title)
 #visualize most closely related words (words that appear together most often)
 bigram <-
   all %>%
@@ -35,8 +40,8 @@ bigram <-
   #drop stopwords and digits
   filter(!word1 %in% stop_words$word) %>%
   filter(!word2 %in% stop_words$word) %>%
-  filter(!str_detect(word1,"\\d")) %>%
-  filter(!str_detect(word2,"\\d")) %>%
+  filter(!str_detect(word1, "\\d")) %>%
+  filter(!str_detect(word2, "\\d")) %>%
   count(word1, word2, topic, sort = TRUE) %>%
   #drop words with low frequency
   filter(n > 25) %>%
@@ -58,7 +63,8 @@ ggraph(bigram, layout = "fr") +
 
 The transparency of the connecting lines between points represents how often two words appear together, and the color of these lines represent the topics of the words. From the graph, we can see the four words "Canada", "Mexico", "trade", "agreement" are connected. This is probably realted to USMCA (United States-Mexico-Canada Agreement).The word "opioid" is connected to "crisis", indicating a severe problem of drug abuse. However, many connections come from the regular use of different phrases, such as "white"-"house", "prime"-"minister", and "united"-"kingdom", which contains little information.
 
-To explore the relationship between words, a better way is to examine the binary correlation. Here I will use phi coefficient, which compares the likelihood of both or neither words appearing to the likelihood of one word appearing wthout the other. I will use pairwise_cor() function in package widyr to calculate the coefficient and I can see what words tend to appear with the same topic.
+## Explore the binary correlation between words
+To explore the relationship between words, a better way is to examine the binary correlation. Here I will use phi coefficient, which compares the likelihood of both or neither words appearing to the likelihood of one word appearing wthout the other. I will use pairwise_cor() function in package widyr to calculate the coefficient and I can see what words tend to appear together with the same topic.
 
 ```{r bigram2}
 #calculate the correlation between words
@@ -66,24 +72,24 @@ bigram2 <-
   all %>% 
   group_by(id) %>%
   #from sentences to words
-  unnest_tokens(word,title) %>%  
+  unnest_tokens(word, title) %>%  
   #drop stopwords
   anti_join(stop_words) %>%   
   ungroup() %>%
   #drop digits
-  filter(!str_detect(word,"\\d")) %>%
+  filter(!str_detect(word, "\\d")) %>%
   #drop words without topics
   na.omit() %>%
   group_by(word) %>%
   #drop words with low frequency
   filter(n() >= 20) %>%
-  pairwise_cor(word,topic,sort = TRUE)
+  pairwise_cor(word, topic, sort = TRUE)
 ```
 
 We can find the most correlated words with the word we are interested in. Here I choose "coronavirus", "republican", and "border" as examples.
 
 ```{r coronavirus}
-coronavirus<-
+coronavirus <-
   bigram2 %>%
   filter(item1 == "coronavirus")
 
@@ -102,7 +108,7 @@ coronavirus %>%
 The top 5 correlated words with coronavirus are "opioid", "healthcare", "jordan", "abe" and "businesses". From the graph we can see coronavirus is highly correlated with healthcare area, but it also has a large effect on businesses and people's life. The word "freedom" is probably related to the social distancing and quarantine rules. It is surprising to see "abe" and "Japan" having such a high rank.
 
 ```{r republican}
-republican<-
+republican <-
   bigram2 %>%
   filter(item1 == "republican")
 
@@ -121,7 +127,7 @@ republican %>%
 The top 3 correlated words with republican are "workers", "healthcare", and "businesses". Most of the words are related to economy and employment, and we can also see tax cuts and coronavirus having a high rank. 
 
 ```{r border}
-border<-
+border <-
   bigram2 %>%
   filter(item1 == "border")
 
@@ -137,4 +143,9 @@ border %>%
        caption = "Data Source: whitehouse.gov")
 ```
 
-Most of the words correlated with border is related to national security and defense or immigration area. Some countries such as "Iran", "Mexico", and "Israel" are highly correlated with border.
+Most of the words correlated with border is related to national security and defense or immigration fields. Some countries such as "Iran", "Mexico", and "Israel" are highly correlated with border.
+
+## References
+1. Silge, J., & Robinson, D. (2017). Text mining with R: A tidy approach. " O'Reilly Media, Inc.".
+2. Cavnar, W. B., & Trenkle, J. M. (1994, April). N-gram-based text categorization. In Proceedings of SDAIR-94, 3rd annual symposium on document analysis and information retrieval (Vol. 161175).
+3. Smith, J. R. (2018). The Application of Text Mining and Data Visualization Techniques to Textual Corpus Exploration.

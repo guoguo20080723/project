@@ -87,7 +87,7 @@ tfidf %>%
   xlab(NULL) +
   coord_flip() +
   theme_pander(base_size = 11, base_family = "sans") +
-  labs(title = "Coronavirus and opioid abuse are the keywords in Healthcare",
+  labs(title = "Coronavirus and opioid abuse are most important in Healthcare",
        caption = "Data Source: whitehouse.gov")
 ```
 
