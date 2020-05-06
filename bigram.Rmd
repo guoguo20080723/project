@@ -35,16 +35,16 @@ all$title <- as.character(all$title)
 #visualize most closely related words (words that appear together most often)
 bigram <-
   all %>%
-  #from sentences to two consecutive words
+  #from sentences to bigrams
   unnest_tokens(bigram, title, token = "ngrams", n = 2) %>%
   separate(bigram, c("word1", "word2"), sep = " ") %>%
-  #drop stopwords and digits
+  #drop bigrams containing stopwords and digits
   filter(!word1 %in% stop_words$word) %>%
   filter(!word2 %in% stop_words$word) %>%
   filter(!str_detect(word1, "\\d")) %>%
   filter(!str_detect(word2, "\\d")) %>%
   count(word1, word2, topic, sort = TRUE) %>%
-  #drop words with low frequency
+  #drop bigrams with low frequency
   filter(n > 25) %>%
   graph_from_data_frame()
 
